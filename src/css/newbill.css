@@ -61,3 +61,16 @@ textarea:focus, input:focus, select:focus {
 *[placeholder] {
   color: #0E5AE5 !important;
 }
+
+.input-file-error-msg {
+  opacity: 0;
+  font-size: .9em;
+  color: #bd2130;
+  transition: opacity .3s ease-in-out;
+}
+
+.active { 
+  opacity: 1;
+  position: absolute;
+  transition: opacity .3s ease-in-out;
+}

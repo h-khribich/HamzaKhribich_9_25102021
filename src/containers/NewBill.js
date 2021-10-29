@@ -10,7 +10,7 @@ export default class NewBill {
     const formNewBill = this.document.querySelector(`form[data-testid="form-new-bill"]`)
     formNewBill.addEventListener("submit", this.handleSubmit)
     const file = this.document.querySelector(`input[data-testid="file"]`)
-    file.addEventListener("change", this.handleChangeFile)
+    file.addEventListener("input", this.handleChangeFile)
     this.fileUrl = null
     this.fileName = null
     new Logout({ document, localStorage, onNavigate })
@@ -19,7 +19,13 @@ export default class NewBill {
     const file = this.document.querySelector(`input[data-testid="file"]`).files[0]
     const filePath = e.target.value.split(/\\/g)
     const fileName = filePath[filePath.length-1]
-    this.firestore
+    const fileExtension = fileName.slice(-4)
+    const errorMsg = this.document.querySelector('.input-file-error-msg')
+  
+    // Prevent form submission if file is incorrect format (anything other than .jpg, .jpeg or .png) and display error message
+    if (fileExtension === '.jpg' || fileExtension === '.jpeg' || fileExtension === '.png') {
+      if (errorMsg.classList.contains('active')) { errorMsg.classList.toggle('active') }
+      this.firestore
       .storage
       .ref(`justificatifs/${fileName}`)
       .put(file)
@@ -28,6 +34,20 @@ export default class NewBill {
         this.fileUrl = url
         this.fileName = fileName
       })
+    } else {
+      this.document.querySelector(`input[data-testid="file"]`).value = '';
+      errorMsg.classList.toggle('active')
+      errorMsg.animate([
+        { transform: 'translateX(-15px)' },
+        { transform: 'translateX(0)'},
+        { transform: 'translateX(15px)' },
+        { transform: 'translateX(0)' }
+      ], {
+        duration: 230,
+        iterations: 2,
+        easing: 'ease-in-out'
+      })
+    }
   }
   handleSubmit = e => {
     e.preventDefault()
