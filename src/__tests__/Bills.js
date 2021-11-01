@@ -1,8 +1,27 @@
-import { screen } from "@testing-library/dom"
+import { screen, fireEvent } from "@testing-library/dom"
 import BillsUI from "../views/BillsUI.js"
 import { bills } from "../fixtures/bills.js"
+import Bills from "../containers/Bills.js";
+import Router from '../app/Router.js'
+import { localStorageMock } from "../__mocks__/localStorage.js";
+import { ROUTES, ROUTES_PATH } from "../constants/routes"
+import Firestore from "../app/Firestore";
+import firebase from "../__mocks__/firebase";
 
 describe("Given I am connected as an employee", () => {
+  describe("When the page is loading", () => {
+    test("Then page should load correctly", () => {
+      const html = BillsUI({ loading: true})
+      document.body.innerHTML = html
+      expect(screen.getAllByText('Loading...')).toBeTruthy()
+    })
+    test("Then in case of error, error should display", () => {
+      const html = BillsUI({ error: true})
+      document.body.innerHTML = html
+      expect(screen.getAllByText('Erreur')).toBeTruthy()
+    })
+  })
+
   describe("When I am on Bills Page", () => {
     test("Then bill icon in vertical layout should be highlighted", () => {
       const html = BillsUI({ data: []})
@@ -16,6 +35,49 @@ describe("Given I am connected as an employee", () => {
       const antiChrono = (a, b) => ((a < b) ? 1 : -1)
       const datesSorted = [...dates].sort(antiChrono)
       expect(dates).toEqual(datesSorted)
+    })
+  })
+
+  // Define Bills page
+  describe("When I click on", () => {
+    let billItems;
+    beforeEach(() => {
+      // Creating local storage and setting user type as employee
+      Object.defineProperty(window, 'localStorage', { value: localStorageMock })
+      window.localStorage.setItem('user', JSON.stringify({type: 'Employee'}))
+  
+      const html = BillsUI({ data: bills })
+      document.body.innerHTML = html
+      $.fn.modal = jest.fn()
+  
+      billItems = new Bills({
+        document,
+        onNavigate: (pathname) => document.body.innerHTML = ROUTES({ pathname }),
+        firestore: null,
+        localStorage: window.localStorage
+      })
+    })
+
+    // Test eye modal opening
+    describe("the icon eye", () => {
+      test("then the modal should open", () => {
+        const iconEye = screen.getAllByTestId("icon-eye")[0]
+        const handleClickIconEye = jest.fn(billItems.handleClickIconEye(iconEye))
+        iconEye.addEventListener('click', handleClickIconEye)
+        fireEvent.click(iconEye)
+        expect(handleClickIconEye).toHaveBeenCalled()
+        expect(screen.getByTestId("modaleFile")).toBeTruthy()
+      })
+    })
+
+    describe("the new bill button", () => {
+      test("then I should be redirected to the new bill page", () => {
+        const buttonNewBill = screen.getByTestId("btn-new-bill")
+        const handleClickNewBill = jest.fn(billItems.handleClickNewBill)
+        buttonNewBill.addEventListener('click', handleClickNewBill)
+        fireEvent.click(buttonNewBill)
+        expect(screen.getByText("Envoyer une note de frais")).toBeTruthy()
+      })
     })
   })
 })
