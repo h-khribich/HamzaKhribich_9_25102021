@@ -24,7 +24,7 @@ export default class NewBill {
   
     // Prevent form submission if file is incorrect format (anything other than .jpg, .jpeg or .png) and display error message
     if (fileExtension === '.jpg' || fileExtension === '.jpeg' || fileExtension === '.png') {
-      if (errorMsg.classList.contains('active')) { errorMsg.classList.toggle('active') }
+      /* istanbul ignore next */
       this.firestore
       .storage
       .ref(`justificatifs/${fileName}`)
@@ -34,19 +34,11 @@ export default class NewBill {
         this.fileUrl = url
         this.fileName = fileName
       })
+      /* istanbul ignore next */
+      if (errorMsg.classList.contains('active')) { errorMsg.classList.toggle('active') }
     } else {
       this.document.querySelector(`input[data-testid="file"]`).value = '';
       errorMsg.classList.toggle('active')
-      errorMsg.animate([
-        { transform: 'translateX(-15px)' },
-        { transform: 'translateX(0)'},
-        { transform: 'translateX(15px)' },
-        { transform: 'translateX(0)' }
-      ], {
-        duration: 230,
-        iterations: 2,
-        easing: 'ease-in-out'
-      })
     }
   }
   handleSubmit = e => {
@@ -71,6 +63,7 @@ export default class NewBill {
   }
 
   // not need to cover this function by tests
+  /* istanbul ignore next */
   createBill = (bill) => {
     if (this.firestore) {
       this.firestore
