@@ -81,6 +81,7 @@ describe("Given I am connected as an employee", () => {
     })
   })
 
+  // GET Integration test
   describe("When I navigate to bills page", () => {
     test("Then fetch bills from mock API GET", async () => {
       const getSpy = jest.spyOn(firebase, "get")
